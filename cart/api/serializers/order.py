@@ -29,7 +29,7 @@ class OrderListSerializer(ModelSerializer):
     order_price = SerializerMethodField()
     order_price_after_discount = SerializerMethodField()
     order_price_with_shipping = SerializerMethodField()
-    created = SerializerMethodField()
+    finalized_at = SerializerMethodField()
 
     @staticmethod
     def get_full_name(obj):
@@ -48,8 +48,8 @@ class OrderListSerializer(ModelSerializer):
         return obj.get_order_price_with_shipping() if obj.get_order_price_with_shipping() else 0
 
     @staticmethod
-    def get_created(obj):
-        return PersianDateTime(obj.created)
+    def get_finalized_at(obj):
+        return PersianDateTime(obj.finalized_at)
 
     class Meta:
         model = Cart
@@ -63,7 +63,7 @@ class OrderListSerializer(ModelSerializer):
             'order_price_after_discount',
             'shipping_price',
             'order_price_with_shipping',
-            'created',
+            'finalized_at',
             'paid_at',
         )
         read_only_fields = ('id', 'paid_at')
@@ -71,14 +71,14 @@ class OrderListSerializer(ModelSerializer):
 
 class OrderRetrieveSerializer(ModelSerializer):
     orderitems = OrderItemSerializer(many=True)
-    created = SerializerMethodField()
+    finalized_at = SerializerMethodField()
     order_price = SerializerMethodField()
     order_price_after_discount = SerializerMethodField()
     order_price_with_shipping = SerializerMethodField()
 
     @staticmethod
-    def get_created(obj):
-        return PersianDateTime(obj.created)
+    def get_finalized_at(obj):
+        return PersianDateTime(obj.finalized_at)
 
     @staticmethod
     def get_order_price(obj):
@@ -99,7 +99,7 @@ class OrderRetrieveSerializer(ModelSerializer):
             'step',
             'description',
             'orderitems',
-            'created',
+            'finalized_at',
             'order_price',
             'discount_price',
             'order_price_after_discount',

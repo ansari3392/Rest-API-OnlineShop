@@ -11,8 +11,8 @@ class OrderItemInline(admin.StackedInline):
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'created')
-    list_filter = ('user', 'created')
+    list_display = ('user',)
+    list_filter = ('user',)
     inlines = [OrderItemInline]
 
 

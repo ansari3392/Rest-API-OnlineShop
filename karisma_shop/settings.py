@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'product',
     'cart',
     'shipping',
-    'discount'
+    'discount',
+    'django_celery_beat'
 
 ]
 
@@ -169,5 +170,12 @@ FINALIZE_CART_PERIOD = {
     'start': time(8, 0, 0),
     'end': time(17, 0, 0),
 }
+CART_ORDER_EXPIRE_TIME = 60 # minutes
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 

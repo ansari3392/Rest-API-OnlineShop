@@ -52,14 +52,14 @@ class FinalizeCartTest(APITestCase):
             title="گوشی موبایل",
             description="توضیحات ندارد",
             is_fragile=True,
-            base_price='3000000',
-            profit_price='500000')
+            base_price=3000000,
+            profit_price=500000)
         self.product2 = Product.objects.create(
             title="هندزفری",
             description="توضیحات ندارد",
             is_fragile=False,
-            base_price='20000',
-            profit_price='1000'
+            base_price=20000,
+            profit_price=1000
         )
 
         refresh = RefreshToken.for_user(user=self.user)
@@ -103,7 +103,9 @@ class FinalizeCartTest(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_finalize_cart_when_shop_is_closed_fail(self):
+    @patch('cart.models.cart.is_between')
+    def test_finalize_cart_when_shop_is_closed_fail(self, mock_is_between):
+        mock_is_between.return_value = False
         self.cart.orderitems.create(product=self.product1, quantity=1)
         url = reverse('cart:api:finalize_cart')
         data = {
@@ -172,16 +174,55 @@ class FinalizeCartTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @patch('cart.models.cart.is_between')
+    def test_change_cart_step_success(self, mock_is_between):
+        mock_is_between.return_value = True
+        self.cart.orderitems.create(product=self.product1, quantity=1)
+        url = reverse('cart:api:finalize_cart')
+        data = {
+            'address': self.address.id,
+            'discount': 'test'
+        }
+        response = self.client.post(url, data)
+        self.cart.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'finalized')
+        self.assertEqual(self.cart.step, 'pending')
+
+    @patch('cart.models.cart.is_between')
     def test_save_product_price_in_order_item_success(self, mock_is_between):
         mock_is_between.return_value = True
-        pass
+        self.cart.orderitems.create(product=self.product1, quantity=1)
+        url = reverse('cart:api:finalize_cart')
+        data = {
+            'address': self.address.id,
+            'discount': 'test'
+        }
+        response = self.client.post(url, data)
+        self.cart.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'finalized')
+        order_item_price = self.cart.orderitems.first().price
+        self.assertEqual(order_item_price, self.product1.get_price())
 
     @patch('cart.models.cart.is_between')
     def test_save_shipping_price_in_order_success(self, mock_is_between):
         mock_is_between.return_value = True
-        pass
+        self.cart.orderitems.create(product=self.product1, quantity=1)
+        url = reverse('cart:api:finalize_cart')
+        data = {
+            'address': self.address.id,
+            'discount': 'test'
+        }
+        response = self.client.post(url, data)
+        self.cart.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'finalized')
+        shipping_price = self.cart.shipping_price
+        self.assertEqual(shipping_price, self.shipping2.price)
+        self.assertEqual(self.cart.step, 'pending')
 
     @patch('cart.models.cart.is_between')
     def test_save_discount_price_in_order_success(self, mock_is_between):
-        mock_is_between.return_value = True
         pass
+
+

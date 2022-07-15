@@ -10,12 +10,12 @@ class OrderListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     filterset_fields = (
-        'created',
+        'finalized_at',
         'step',
     )
 
     def get_queryset(self):
-        qs = Order.order_objects.filter(user=self.request.user).prefetch_related('orderitems')
+        qs = Order.objects.filter(user=self.request.user).prefetch_related('orderitems')
         return qs
 
 
@@ -24,5 +24,5 @@ class OrderRetrieveAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        qs = Order.order_objects.filter(user=self.request.user).prefetch_related('orderitems')
+        qs = Order.objects.filter(user=self.request.user).prefetch_related('orderitems')
         return qs

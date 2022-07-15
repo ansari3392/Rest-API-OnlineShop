@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
             },
             bases=('cart.cart',),
             managers=[
-                ('order_objects', django.db.models.manager.Manager()),
+                ('objects', django.db.models.manager.Manager()),
             ],
         ),
     ]

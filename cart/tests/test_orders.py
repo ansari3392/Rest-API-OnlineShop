@@ -48,10 +48,10 @@ class OrdersTest(APITestCase):
         self.assertEqual(len(response.data.get('results')), 0)
 
     def test_get_orders_list_success(self):
-        self.order1 = Order.order_objects.create(user=self.user, step=Cart.StepChoices.CANCELED)
+        self.order1 = Order.objects.create(user=self.user, step=Cart.StepChoices.CANCELED)
         self.order1.orderitems.create(product=self.product1, quantity=3)
         self.order1.orderitems.create(product=self.product2, quantity=1)
-        self.order2 = Order.order_objects.create(user=self.user, step=Cart.StepChoices.PAID)
+        self.order2 = Order.objects.create(user=self.user, step=Cart.StepChoices.PAID)
         self.order2.orderitems.create(product=self.product2)
         url = reverse('cart:api:order_list')
         response = self.client.get(url)
@@ -73,7 +73,7 @@ class OrdersTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_order_detail_success(self):
-        self.order = Order.order_objects.create(
+        self.order = Order.objects.create(
             user=self.user,
             step=Cart.StepChoices.CANCELED,
             discount_price=100000,
@@ -96,7 +96,7 @@ class OrdersTest(APITestCase):
         self.assertEqual(response.data.get('order_price_with_shipping'), 3500000*3-100000+self.shipping2.price)
 
     def test_get_order_detail_if_product_price_change(self):
-        self.order = Order.order_objects.create(
+        self.order = Order.objects.create(
             user=self.user,
             step=Cart.StepChoices.CANCELED,
             discount_price=100000,
@@ -112,7 +112,7 @@ class OrdersTest(APITestCase):
         self.assertEqual(response.data.get('order_price_with_shipping'), 3500000*3-100000+self.shipping2.price)
 
     def test_get_orders_detail_unauthorized_fail(self):
-        self.order = Order.order_objects.create(
+        self.order = Order.objects.create(
             user=self.user,
             step=Cart.StepChoices.CANCELED,
             discount_price=100000,

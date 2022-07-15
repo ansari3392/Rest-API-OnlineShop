@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Union
 
 from django.conf import settings
@@ -33,6 +32,7 @@ class CartManager(models.Manager):
 
 class OrderManager(models.Manager):
     def get_queryset(self):
+
         return super().get_queryset().exclude(step=Cart.StepChoices.INITIAL)
 
 
@@ -66,7 +66,7 @@ class Cart(models.Model):
         null=True,
         blank=True
     )
-    created = models.DateTimeField(
+    finalized_at = models.DateTimeField(
         auto_now=True
     )
     shipping = models.ForeignKey(
@@ -100,7 +100,7 @@ class Cart(models.Model):
     objects = CartManager()
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('-finalized_at',)
         verbose_name = 'Cart'
         verbose_name_plural = 'Carts'
 
@@ -163,7 +163,7 @@ class Cart(models.Model):
         self.shipping = shipping
         self.shipping_price = shipping.price
 
-        self.created = datetime.now()
+        self.finalized_at = timezone.now()
         self.save()
 
     def get_shipping(self) -> Shipping:
@@ -177,8 +177,7 @@ class Cart(models.Model):
 class Order(Cart):
     class Meta:
         proxy = True
-
-    order_objects = OrderManager()
+    objects = OrderManager()
 
     def get_order_price(self):
         total_price = self.orderitems.annotate(order_price=F('price') * F('quantity')).aggregate(
